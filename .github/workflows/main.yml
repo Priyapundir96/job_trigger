@@ -34,7 +34,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'  # Only runs when manually triggered
-    needs: test  # Runs after the 'test' job
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
