@@ -1,16 +1,16 @@
-name: CI/CD Pipeline
+name: Simple CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main  # Trigger on push to the 'main' branch
-  workflow_dispatch:  # Allow manual trigger for the deploy job
+      - main  # Triggered when there is a push to the 'main' branch
+  workflow_dispatch:  # Allows manual trigger via GitHub UI
 
 jobs:
-  # Job 1: Build
+  # Job 1: Build (Triggered on push)
   build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'  # Only run on push event
+    if: github.event_name == 'push'  # Only runs on push event
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -26,11 +26,11 @@ jobs:
       - name: Build project
         run: npm run build
 
-  # Job 2: Test
+  # Job 2: Test (Triggered on push)
   test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'  # Only run on push event
-    needs: build  # Ensure this job runs after 'build' job
+    if: github.event_name == 'push'  # Only runs on push event
+    needs: build  # Runs after the 'build' job
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -46,11 +46,11 @@ jobs:
       - name: Run tests
         run: npm test
 
-  # Job 3: Deploy (Triggered by workflow_dispatch)
+  # Job 3: Deploy (Triggered by workflow_dispatch - manual trigger)
   deploy:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'  # Only run on manual trigger
-    needs: test  # Ensure this job runs after 'test' job
+    if: github.event_name == 'workflow_dispatch'  # Only runs when manually triggered
+    needs: test  # Runs after the 'test' job
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
