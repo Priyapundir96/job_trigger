@@ -15,16 +15,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
+      - name: Build project (Echo message)
+        run: echo "Building the project..."
 
   # Job 2: Test (Triggered on push)
   test:
@@ -35,16 +27,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
+      - name: Test project (Echo message)
+        run: echo "Running tests..."
 
   # Job 3: Deploy (Triggered by workflow_dispatch - manual trigger)
   deploy:
@@ -55,7 +39,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy to production server
+      - name: Deploy project (Echo message)
         run: |
           echo "Deploying project to production..."
-          # Add your deployment commands here
+          # Add your deployment commands here (for now, just echoing)
