@@ -1,52 +1,40 @@
-name: Simple CI/CD Pipeline
+name: CI/CD Pipeline with Job Outputs
 
 on:
   push:
     branches:
-      - main  # Triggered when there is a push to the 'main' branch
-  workflow_dispatch:  # Allows manual trigger via GitHub UI
+      - main  # Trigger on push to main
+  workflow_dispatch:  # Trigger manually via GitHub UI
 
 jobs:
   # Job 1: Build (Triggered on push)
   build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'  # Only runs on push event
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build the project
+        id: build_step  # This step will generate the output
+        run: |
+          # Simulate build process and create a version string
+          VERSION="v1.0.0"
+          echo "Build completed successfully."
+          # Set output to pass to the next job
+          echo "::set-output name=version::$VERSION"  # This sets the 'version' output
+
     outputs:
-      build_output: ${{ steps.build_output.outputs.result }}  # Set output for use in other jobs
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      version: ${{ steps.build_step.outputs.version }}  # Expose the output for other jobs
 
-      - name: Build project (Echo message)
-        id: build_output  # Give step an ID to reference output
-        run: |
-          echo "Building the project..."
-          echo "::set-output name=result::build_successful"  # This is the output value from this step
-
-  # Job 2: Test (Triggered on push)
-  test:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'  # Only runs on push event
-    needs: build  # Runs after the 'build' job
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Test project (Echo message)
-        run: |
-          echo "Running tests..."
-          echo "Build output from previous job: ${{ needs.build.outputs.build_output }}"
-
-  # Job 3: Deploy (Triggered by workflow_dispatch - manual trigger)
+  # Job 2: Deploy (Triggered manually)
   deploy:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'  # Only runs when manually triggered
-    needs: build  # Runs after 'build' job
+    needs: build  # This job depends on the 'build' job
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy project (Echo message)
+      - name: Deploy project
         run: |
-          echo "Deploying project to production..."
-          echo "Build output from previous job: ${{ needs.build.outputs.build_output }}"
+          # Access the version output from the build job
+          echo "Deploying version ${{ needs.build.outputs.version }} to production..."
