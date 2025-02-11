@@ -1,0 +1,52 @@
+name: Simple CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Triggered when there is a push to the 'main' branch
+  workflow_dispatch:  # Allows manual trigger via GitHub UI
+
+jobs:
+  # Job 1: Build (Triggered on push)
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'  # Only runs on push event
+    outputs:
+      build_output: ${{ steps.build_output.outputs.result }}  # Set output for use in other jobs
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build project (Echo message)
+        id: build_output  # Give step an ID to reference output
+        run: |
+          echo "Building the project..."
+          echo "::set-output name=result::build_successful"  # This is the output value from this step
+
+  # Job 2: Test (Triggered on push)
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'  # Only runs on push event
+    needs: build  # Runs after the 'build' job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test project (Echo message)
+        run: |
+          echo "Running tests..."
+          echo "Build output from previous job: ${{ needs.build.outputs.build_output }}"
+
+  # Job 3: Deploy (Triggered by workflow_dispatch - manual trigger)
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'  # Only runs when manually triggered
+    needs: build  # Runs after 'build' job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy project (Echo message)
+        run: |
+          echo "Deploying project to production..."
+          echo "Build output from previous job: ${{ needs.build.outputs.build_output }}"
